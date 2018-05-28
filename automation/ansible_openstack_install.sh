@@ -26,8 +26,7 @@ sudo '@Development Tools'
 
 # clone the latest release of the openstack-ansible git repo
 
-git clone -b 15.1.19 https://git.openstack.org/openstack/openstack-ansible \
-/opt/openstack-ansible
+git clone -b 15.1.19 https://git.openstack.org/openstack/openstack-ansible /opt/openstack-ansible
 
 cd /opt/openstack-ansible
 
