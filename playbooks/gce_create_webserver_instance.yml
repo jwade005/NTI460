@@ -1,0 +1,49 @@
+- name: Create webserver instance
+  hosts: localhost
+  gather_facts: no
+  connection: local
+
+  vars:
+    machine_type: f1-micro
+    image: centos-7
+    service_account_email: ansible-service-account@ansible-cloud-jwade005.iam.gserviceaccount.com
+    credentials_file: /home/jwade005/Desktop/NTI460/ansible-cloud-jwade005-eabb0ad817f3.json
+    project_id: ansible-cloud-jwade005
+
+  tasks:
+    - name: Launch instances
+      gce:
+          instance_names: webserver
+          machine_type: "{{ machine_type }}"
+          image: "{{ image }}"
+          service_account_email: "{{ service_account_email }}"
+          credentials_file: "{{ credentials_file }}"
+          project_id: "{{ project_id }}"
+          tags: webserver
+      register: gce
+
+    - pause:
+        seconds: 60
+
+    - name: install Apache
+      command: sudo yum -y install httpd
+
+    - name: enables and starts httpd service
+      command: sudo systemctl enable httpd
+      command: sudo systemctl start httpd
+
+- name: Open port 80 to allow Apache
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Allow HTTP
+      local_action:
+        module: gce_net
+        name: default
+        allowed: tcp:80
+        fwname: all-http
+        service_account_email: ansible-service-account@ansible-cloud-jwade005.iam.gserviceaccount.com
+        credentials_file: /home/jwade005/Desktop/NTI460/ansible-cloud-jwade005-eabb0ad817f3.json
+        project_id: ansible-cloud-jwade005
+        target_tags: httpd-server
