@@ -1,0 +1,33 @@
+- name: Create NFS server from shell script
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    service_account_email: ansible-service-account@ansible-cloud-jwade005.iam.gserviceaccount.com
+    credentials_file: /home/jwade005/Desktop/NTI460/ansible-cloud-jwade005-eabb0ad817f3.json
+    project_id: ansible-cloud-jwade005
+    region: us-east1
+    zone: us-east1-b
+    machine_type: f1-micro
+    image_family: centos-7
+    image: centos-7
+
+  tasks:
+
+   - name: Launch instances
+     gce:
+         instance_names: nfs-a
+         machine_type: "{{ machine_type }}"
+         image: "{{ image }}"
+         image_family: "{{ image_family }}"
+         zone: "{{ zone }}"
+         service_account_email: "{{ service_account_email }}"
+         credentials_file: "{{ credentials_file }}"
+         project_id: "{{ project_id }}"
+         tags:
+           - "nfs-server"
+         metadata : '{"startup-script" : "curl https://raw.githubusercontent.com/jwade005/NTI-310/master/automation_scripts/nfs-server-install.sh > nfs_server.sh; chmod +x ./nfs_server.sh; ./nfs_server.sh"}'
+     register: gce
+
+   - debug: msg="{{ gce.instance_data[0].private_ip }}"
